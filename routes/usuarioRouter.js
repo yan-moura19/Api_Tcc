@@ -51,19 +51,37 @@ router.post('/usuario', async (req, res) => {
             { categoria: 'Música', cliques: 0 },
             { categoria: 'Filmes', cliques: 0 },
           ]
-          let topCategorias = preferencias
-          let newUsuario = {
-            nome,
-            usuario,
-            senha,
-            categorias: categoriasNavegacao,
-            topCategorias,
-            imagem: 'teste',
-            isParceiro,
-            categoria,
-            preferencias
+          let newUsuario;
+          
+          if(isParceiro){
+          let parceria = {
+            categoria: categoria,
+            cliques: 0,
+            usuario: usuario
           }
-          const userExists = await Usuario.findOne({usuario : usuario})
+          newUsuario = {
+            nome,
+            senha,
+            imagem: imagem,
+            preferencias,
+            isParceiro,
+            interacoes: categoriasNavegacao,
+            parceria: parceria
+          }
+        }else{
+          newUsuario = {
+            nome,
+            senha,
+            imagem: imagem,
+            preferencias,
+            isParceiro,
+            interacoes: categoriasNavegacao,
+            
+          }
+        }
+        
+        
+          const userExists = await Usuario.findOne({nome : nome})
           if(userExists){
             return res.status(422).json({msg : "Esse nome de usuario já está sendo utilizado"})
         } 
