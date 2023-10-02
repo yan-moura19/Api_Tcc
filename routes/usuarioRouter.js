@@ -10,6 +10,33 @@ router.get('/perfis', async (request, response) => {
     const usuarios =  await Usuario.find({ isParceiro: true })
     response.status(200).json(usuarios);   
    })
+   router.post('/Auth/login', async (request, res) => {
+    try {
+      
+      const username = request.body.usuario;
+      const senha = request.body.senha;
+      
+      
+      
+      const usuario = await Usuario.findOne({ usuario: username });
+  
+      if (!usuario) {
+        return res.status(404).json({ error: 'Usuário não encontrado.' });
+      }
+      if(usuario.senha != senha){
+        return res.status(404).json({ error: 'Senha inválida.' });
+      }
+      user = {
+        nome: usuario.nome,
+        logado: true,
+      }
+  
+      res.json(user);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Erro ao buscar usuário.' });
+    } 
+   })
 router.get('/perfis-pref', async (request, response) => {
   const user = await Usuario.findById(req.params.id)
   const preferencias = user.topCategorias
