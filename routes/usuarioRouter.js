@@ -37,12 +37,18 @@ router.get('/perfis', async (request, response) => {
       res.status(500).json({ error: 'Erro ao buscar usuário.' });
     } 
    })
-router.get('/perfis-pref', async (request, response) => {
-  const user = await Usuario.findById(req.params.id)
-  const preferencias = user.topCategorias
-  const usuarios =  await Usuario.find({ isParceiro: true, 'categorias': { $in: preferencias } }  )
+router.get('/perfis-pref/:nome', async (request, response) => {
+  const user = await  Usuario.findOne({ nome: req.params.nome });
+  const preferencias = user.preferencias
+
+  
+
+  const usuarios =  await Usuario.find({ isParceiro: true, 'parceria.categoria': { $in: preferencias } }  )
   response.status(200).json(usuarios);   
    })
+
+
+   
 router.patch('usuario/:id', async  (req,res )=>{
   try{
   const usuarioId = req.params.id;
@@ -70,7 +76,7 @@ router.put('naveg/', async (req, res)=>{
   let categoriaClicada = req.body.categoria
   let perfil = req.body.perfil
 
-  const usuario = await User.findOne({ nome: user });
+  const usuario = await Usuario.findOne({ nome: user });
   if(!usuario){
     return res.status(404).json({ message: 'Usuário não encontrado' });
   }else{
@@ -79,14 +85,14 @@ router.put('naveg/', async (req, res)=>{
     );
     if (categoriaNavegacao) {
       categoriaNavegacao.cliques++;
-      usuario.save((err) => {
+      Usuario.save((err) => {
         if (err) {
           console.error('Erro ao salvar a interação ao usuário:', err);
           return;
         }
       });
   }
-  const parceiro = await User.findOne({ nome: perfil });
+  const parceiro = await Usuario.findOne({ nome: perfil });
   parceiro.parceria.cliques++
   parceiro.save((err) => {
     if (err) {
@@ -99,6 +105,7 @@ router.put('naveg/', async (req, res)=>{
   
 
 })
+router.get('u')
 
 
 router.post('/usuario', async (req, res) => {
