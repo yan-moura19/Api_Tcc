@@ -56,15 +56,50 @@ router.patch('usuario/:id', async  (req,res )=>{
     res.status(400).json({ error: error.message });
   }
 })
-router.delete('usuario/:id', async  (req,res )=>{
+router.delete('usuario/:nome', async  (req,res )=>{
   try {
-    const usuario = await Usuario.findByIdAndRemove(req.params.id)
+    const usuario = await Usuario.deleteOne( req.params.nome)
     if(!usuario){
       return res.status(404).json({ message: 'Usuário não encontrado' });
     }
   } catch (e) {
   }
 })
+router.put('naveg/', async (req, res)=>{
+  let user = req.body.user
+  let categoriaClicada = req.body.categoria
+  let perfil = req.body.perfil
+
+  const usuario = await User.findOne({ nome: user });
+  if(!usuario){
+    return res.status(404).json({ message: 'Usuário não encontrado' });
+  }else{
+    const categoriaNavegacao = usuario.interacoes.find(
+      (interacao) => interacao.categoria === categoriaClicada
+    );
+    if (categoriaNavegacao) {
+      categoriaNavegacao.cliques++;
+      usuario.save((err) => {
+        if (err) {
+          console.error('Erro ao salvar a interação ao usuário:', err);
+          return;
+        }
+      });
+  }
+  const parceiro = await User.findOne({ nome: perfil });
+  parceiro.parceria.cliques++
+  parceiro.save((err) => {
+    if (err) {
+      console.error('Erro ao salvar a interação no parceiro:', err);
+      return;
+    }
+  });
+
+}
+  
+
+})
+
 
 router.post('/usuario', async (req, res) => {
     const {
