@@ -16,8 +16,6 @@ router.get('/perfis', async (request, response) => {
       const username = request.body.usuario;
       const senha = request.body.senha;
       
-      
-      
       const usuario = await Usuario.findOne({ usuario: username });
   
       if (!usuario) {
@@ -38,14 +36,29 @@ router.get('/perfis', async (request, response) => {
     } 
    })
 router.get('/perfis-pref/:nome', async (request, response) => {
-  const user = await  Usuario.findOne({ nome: req.params.nome });
+  const user = await  Usuario.findOne({ nome: request.params.nome });
   const preferencias = user.preferencias
+  const navegacao = user.categoriasNavegacao
 
-  
 
-  const usuarios =  await Usuario.find({ isParceiro: true, 'parceria.categoria': { $in: preferencias } }  )
+  let categoriaMaisClicada = null;
+  let buscar = []
+  let maxCliques = -1
+  for (const categoria of navegacao) {
+    if (categoria.cliques > maxCliques) {
+      maxCliques = categoria.cliques;
+      categoriaMaisClicada = categoria;
+    }
+  }
+  if(categoriaMaisClicada == preferencias){
+    buscar = preferencias
+  }else{
+    buscar = [ preferencias, categoriaMaisClicada]
+  }
+  const usuarios =  await Usuario.find({ isParceiro: true, 'parceria.categoria': { $in: buscar } })
+  .sort({ 'parceria.cliques': -1 } )
   response.status(200).json(usuarios);   
-   })
+  })
 
 
    
